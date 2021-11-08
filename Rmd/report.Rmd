@@ -1,0 +1,104 @@
+---
+title: "Report"
+author: "Huiying Yang"
+date: "9/22/2021"
+output: html_document
+---
+
+```{r}
+library(renv)
+renv::init()
+library(here)
+library(sas7bdat)
+here::i_am("Rmd/report.Rmd")
+
+```
+
+## Input Data ##
+```{r setup, include=FALSE}
+# Read in the SAS data
+here::i_am("Rmd/report.Rmd")
+data <- read.sas7bdat(here::here('data','mw2012_preg_20210915.sas7bdat'))
+```
+Conducting an accurate assessment of nutritional deficiencies is essential to complete the planning, implementation and evaluation process of public health interventions. Researchers utilize nutrient biomarkers to evaluate nutrient status. The inflammation affects the accuracy of the evolution and ultimately causes margin of error in the estimation of the prevalence of deficiency in a population. Prior works studied how nutrient biomarkers are impacted by inflammation in children and non-pregnant women. Pregnant women undergone tremendous changes in physiology, hormones and metabolism to adapt the growth of children. This study focuses on estimating the mean trajectory of CRP during the course of pregnancy and characterizing interaction effects on this association.
+
+## summary the data set
+```{r}
+summary (data$crp)
+datanew <- data[which(is.na(data$crp)==0),]
+```
+
+## data cleaning, excluding obervations that have missing value in crp, set it as "datanew".
+```{r}
+datanew <- data[which(is.na(data$crp)==0),]
+```
+
+```{r}
+sd (datanew$crp,na.rm = TRUE)
+```
+```{r}
+sd(datanew$hb,na.rm = TRUE)
+```
+```{r}
+sd(datanew$stfr,na.rm = TRUE)
+```
+
+```{r}
+sd(datanew$age_yr)
+```
+
+```{r}
+sd(datanew$gagewks)
+```
+
+```{r cars}
+table(datanew$mstatus)
+```
+
+```{r}
+table(datanew$trimester)
+```
+
+This data set collected data from 1391 pregnant women in Malawi. In this study, the continues variables data were collected, including demographic data (Age, Gestational age, Height, Weight) and nutrient data (CRP level, Hemoglobin). Moreover, 2 categorical variables data were also collected: marital status and pregnancy trimester.
+
+## Doing Analysis
+```{r}
+par(mfrow = c(2,2))
+hist(datanew$crp,
+     prob = TRUE,
+     xlab = "CRP (mg/L)",
+     main = "Histogram/Density of CRP")
+qqnorm(datanew$crp, main = "Normal Q-Q plot of CRP")
+plot(datanew$gagewks, datanew$crp, xlab = "Gestational Age (weeks)",ylab = "CRP (mg/L)")
+
+```
+From histogram, we can see that CRP is right skewed distributed. It is not a normally distribution. So, we need to consider using the log transformation. 
+
+```{r}
+crp_r <- lm (crp ~ gagewks,data = datanew)
+summary(crp_r)
+```
+
+```{r}
+par(mfrow = c(2,2))
+plot(crp_r)
+```
+We can see that before log transformation, the Q-Q plot also show that the CRP was skewed.
+
+## Log Transformation 
+```{r}
+datanew$logcrp = log(datanew$crp + 0.001)
+m2 = lm (logcrp ~ gagewks, data = datanew)
+summary(m2)
+```
+We use simple linear regression model to see if there is any relationship between log CRP and gestational age. I got this model with beta zero equals 1.63 and beta one equals -0.016. The p-value of this model equals 3.54 * 10^-10 which is smaller than critical value 0.05. So, it reject null hypothesis.
+The coefficient for interaction (beta one) shows that for every unit increase in logCRP, the slope relating logCRP to gestational age decreases by 0.016. 
+
+## Check the results.
+```{r}
+par(mfrow = c(2,2))
+plot(m2)
+```
+We visually confirmed the assumption of linear regression for this model by examining Q-Q plots, scatter plots, and residual plots. All these plots are normally distributed.
+
+
