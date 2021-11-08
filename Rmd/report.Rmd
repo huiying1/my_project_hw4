@@ -7,7 +7,7 @@ output: html_document
 
 ```{r}
 library(renv)
-renv::init()
+renv::restore()
 library(here)
 library(sas7bdat)
 here::i_am("Rmd/report.Rmd")
