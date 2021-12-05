@@ -17,7 +17,7 @@ RUN mkdir /project
 COPY ./ /project/
 
 # make R scripts executable
-RUN chmod +x /project/R/*.R
+RUN chmod +x /project/
 
 WORKDIR /INFO550_FinalProject
 
