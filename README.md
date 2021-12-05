@@ -7,12 +7,12 @@ This study focuses on estimating the mean trajectory of CRP during the course of
 To execute the analysis from Docker, first pull the image from Docker hub using
 
 ``` bash
-docker pull huiying1/info_final
+docker pull huiying1/info550
 ```
 To build the image and report, run
 
 ``` bash
-docker run -v /your_local_path/project_output:/project/output -it huiying1/info_final
+docker run -v ~/your_local_path/output:/one/output -it huiying1/info_10
 ```
 
 
